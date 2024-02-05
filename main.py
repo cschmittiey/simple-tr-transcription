@@ -10,7 +10,7 @@ import asyncio
 import logging
 
 # hopefully this imports config.py and there's not some library out there named config... that would be awkward
-import config
+import config.config as config
 
 
 #log config

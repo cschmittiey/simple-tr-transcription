@@ -4,7 +4,7 @@ import os
 from faster_whisper import WhisperModel
 import string
 import threading
-from discord import Webhook
+from discord import Webhook, Embed
 import aiohttp
 import asyncio
 import logging
@@ -57,7 +57,7 @@ def handle_message(filename):
         logging.info(f"Transcription of {filename}: {fulltext}")
 
         #fire off discord notification
-        asyncio.run(send_talkgroup_webhook(talkgroup, fulltext))
+        asyncio.run(send_talkgroup_webhook(talkgroup, filename, fulltext))
 
         #fire off mqtt notification
         #i don't really love just tossing out the file name, talkgroup, and transcription. we should ingest call data with the upload script and use that maybe?
@@ -84,10 +84,14 @@ def check_tg(talkgroup):
     
     return False
 
-async def send_talkgroup_webhook(talkgroup, transcription):
+async def send_talkgroup_webhook(talkgroup, filename, transcription):
     async with aiohttp.ClientSession() as session:
         webhook = Webhook.from_url(config.tg_webhooks[talkgroup], session=session)
-        await webhook.send(transcription, username=config.tg_displaynames[talkgroup])
+        e = Embed(
+            title=config.tg_displaynames[talkgroup],
+        description=(f"{transcription}\n\n[Call Audio]({'https://' + config.s3_config['s3_endpoint'] + filename})")
+        )
+        await webhook.send(embed=e, username='dawn 🌅')
 
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect

@@ -8,10 +8,9 @@ from discord import Webhook
 import aiohttp
 import asyncio
 import logging
-
-# hopefully this imports config.py and there's not some library out there named config... that would be awkward
+import json
+# hopefully this imports config/config.py and there's not some library out there named config... that would be awkward
 import config.config as config
-
 
 #log config
 logging.basicConfig(level=logging.INFO)
@@ -24,12 +23,13 @@ s3 = session.client(service_name='s3',
                     endpoint_url='https://' + config.s3_config['s3_endpoint'])
 
 # faster-whisper initialization
+# TODO: make this a config option
 model_name = "medium.en"  # Choose the appropriate model size and language
 model = WhisperModel(model_name, device="cpu")
 
 def on_connect(client, userdata, flags, rc):
     logging.info("MQTT Broker connected with result code " + str(rc))
-    client.subscribe(config.mqtt_config['mqtt_topic'])
+    client.subscribe(config.mqtt_config['mqtt_uploaded_topic'])
 
 def on_message(client, userdata, msg):
     filename = msg.payload.decode()
@@ -46,15 +46,24 @@ def handle_message(filename):
         local_filename = f"temp_{filename}"
         s3.download_file(config.s3_config['s3_bucket'], filename, local_filename)
         logging.debug(f"Downloaded {filename} from S3")
-
+                
+        logging.info(f"Transcribing {filename}")
         segments, info = model.transcribe(local_filename, beam_size=5)
 
         fulltext = ""
         for segment in segments:
             fulltext += segment.text
 
-        logging.debug(f"Transcription from {talkgroup} Result: {fulltext}")
+        logging.info(f"Transcription of {filename}: {fulltext}")
+
+        #fire off discord notification
         asyncio.run(send_talkgroup_webhook(talkgroup, fulltext))
+
+        #fire off mqtt notification
+        #i don't really love just tossing out the file name, talkgroup, and transcription. we should ingest call data with the upload script and use that maybe?
+        x = { 'talkgroup': talkgroup, 'filename':filename, 'transcription':fulltext}
+        mqtt_transcribed_payload = json.dumps(x)
+        mqtt_client.publish(config.mqtt_config['mqtt_transcribed_topic'], mqtt_transcribed_payload)
 
         # Clean up downloaded file
         os.remove(local_filename)
@@ -80,16 +89,13 @@ async def send_talkgroup_webhook(talkgroup, transcription):
         webhook = Webhook.from_url(config.tg_webhooks[talkgroup], session=session)
         await webhook.send(transcription, username=config.tg_displaynames[talkgroup])
 
+mqtt_client = mqtt.Client()
+mqtt_client.on_connect = on_connect
+mqtt_client.on_message = on_message
 
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-
-client.connect(config.mqtt_config['mqtt_host'], config.mqtt_config['mqtt_port'])
+mqtt_client.connect(config.mqtt_config['mqtt_host'], config.mqtt_config['mqtt_port'])
 
 
 
 # Loop forever
-client.loop_forever()
-
-
+mqtt_client.loop_forever()

@@ -9,7 +9,8 @@ s3_config = {
 mqtt_config = {
     'mqtt_host': '127.0.0.1',
     'mqtt_port': 1883,  # Default MQTT port
-    'mqtt_topic': 'trunk-recorder/uploadscript/uploaded',
+    'mqtt_uploaded_topic': 'trunk-recorder/uploadscript/uploaded',
+    'mqtt_transcribed_topic': 'trunk-recorder/transcriber/transcribed',
     'mqtt_username': 'uploadscript',  # Optional
     'mqtt_password': '',  # Optional
 }

@@ -89,7 +89,7 @@ async def send_talkgroup_webhook(talkgroup, filename, transcription):
         webhook = Webhook.from_url(config.tg_webhooks[talkgroup], session=session)
         e = Embed(
             title=config.tg_displaynames[talkgroup],
-        description=(f"{transcription}\n\n[Call Audio]({'https://' + config.s3_config['s3_endpoint'] + filename})")
+        description=(f"{transcription}\n\n[Call Audio]({'https://' + config.s3_config['s3_endpoint'] + '/' + config.s3_config['s3_bucket'] + '/' + filename})")
         )
         await webhook.send(embed=e, username='dawn 🌅')
 

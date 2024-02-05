@@ -2,6 +2,7 @@
 
 this trunk-recorder upload script and `main.py` work together to do simple transcription using faster-whisper on specified trunk-recorder talkgroups. if you're using the MQTT trunk-recorder plugin, you can re-use the same broker you already have set up.
 
+Please note that until I get an extra nvidia GPU to test with, this project is limited to CPU only transcription.
 
 ## usage
 

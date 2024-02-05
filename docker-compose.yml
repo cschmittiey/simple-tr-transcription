@@ -1,0 +1,6 @@
+services:
+  transcription:
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config

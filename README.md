@@ -31,8 +31,6 @@ then you can run main.py on the host you want to do transcription on
 ## TODO List:
 
 - better multi-system support
-- maybe some kind of config file
-- dockerize main.py
 - figure out how to have multiple workers work nicely
 - rate limit transcriptions so the system doesn't get over-whelmed?
 - maybe only upload talkgroups that we want transcribed? this should be configurable, maybe someone wants all the calls in s3? 

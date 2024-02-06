@@ -1,30 +1,19 @@
-import paho.mqtt.client as mqtt
-import boto3
 import os
-from faster_whisper import WhisperModel
-import string
-import threading
-from discord import Webhook, Embed
+import json
+import boto3
 import aiohttp
 import asyncio
 import logging
-import json
+import threading
+import paho.mqtt.client as mqtt
+from discord import Webhook, Embed
+from faster_whisper import WhisperModel
+
 # hopefully this imports config/config.py and there's not some library out there named config... that would be awkward
 import config.config as config
 
-#log config
+# log config
 logging.basicConfig(level=logging.INFO)
-
-# S3 initialization
-session = boto3.session.Session()
-s3 = session.client(service_name='s3',
-                    aws_access_key_id=config.s3_config['s3_access_key'],
-                    aws_secret_access_key=config.s3_config['s3_secret_key'],
-                    endpoint_url='https://' + config.s3_config['s3_endpoint'])
-
-# faster-whisper initialization
-# TODO: make this a config option
-model = WhisperModel(config.model_name, device=config.device_type, download_root="./config")
 
 def on_connect(client, userdata, flags, rc):
     logging.info("MQTT Broker connected with result code " + str(rc))
@@ -57,7 +46,7 @@ def handle_message(filename):
 
         #fire off discord notification unless there's no transcription text
         if fulltext:
-            asyncio.run(send_talkgroup_webhook(talkgroup, filename, fulltext))
+            asyncio.run(send_discord_webhook(talkgroup, filename, fulltext))
 
         #fire off mqtt notification
         #i don't really love just tossing out the file name, talkgroup, and transcription. we should ingest call data with the upload script and use that maybe?
@@ -70,6 +59,7 @@ def handle_message(filename):
 
 
 def check_tg(talkgroup):
+    # Should we be transcribing this talkgroup?
 
     if config.talkgroups_allowlist == [] and config.talkgroups_denylist == []:
         return True
@@ -84,22 +74,30 @@ def check_tg(talkgroup):
     
     return False
 
-async def send_talkgroup_webhook(talkgroup, filename, transcription):
+async def send_discord_webhook(talkgroup, filename, transcription):
     async with aiohttp.ClientSession() as session:
         webhook = Webhook.from_url(config.tg_webhooks[talkgroup], session=session)
         e = Embed(
             title=config.tg_displaynames[talkgroup],
         description=(f"{transcription}\n\n[Call Audio]({'https://' + config.s3_config['s3_endpoint'] + '/' + config.s3_config['s3_bucket'] + '/' + filename})")
         )
-        await webhook.send(embed=e, username='dawn 🌅')
+        await webhook.send(embed=e, username=config.discord_username)
 
+# S3 initialization
+session = boto3.session.Session()
+s3 = session.client(service_name='s3',
+                    aws_access_key_id=config.s3_config['s3_access_key'],
+                    aws_secret_access_key=config.s3_config['s3_secret_key'],
+                    endpoint_url='https://' + config.s3_config['s3_endpoint'])
+
+# faster-whisper initialization
+model = WhisperModel(config.model_name, device=config.device_type, download_root=config.model_path)
+
+# mqtt initialization
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
-
 mqtt_client.connect(config.mqtt_config['mqtt_host'], config.mqtt_config['mqtt_port'])
-
-
 
 # Loop forever
 mqtt_client.loop_forever()

@@ -25,6 +25,8 @@ tg_displaynames = {
     456: 'Police Tac 3'
 }
 
+discord_username = "transcriber ✍️"
+
 # If both are empty, all calls transcribed
 # If denylist has entries, all but denylist transcribed
 # if allowlist has entries, only listed tgs will be transcribed
@@ -40,4 +42,5 @@ When a size or a model ID is configured, the converted model is downloaded from 
 """
 model_name = "large-v3" 
 device_type = "cpu" # Device to use for computation ("cpu", "cuda", "auto").
+model_path = "./config" #this is not for loading models! this is where downloaded models get saved.
 

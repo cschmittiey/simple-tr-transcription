@@ -24,7 +24,7 @@ s3 = session.client(service_name='s3',
 
 # faster-whisper initialization
 # TODO: make this a config option
-model_name = "medium.en"  # Choose the appropriate model size and language
+model_name = "large-v3"  # Choose the appropriate model size and language
 model = WhisperModel(model_name, device="cpu")
 
 def on_connect(client, userdata, flags, rc):
@@ -48,7 +48,7 @@ def handle_message(filename):
         logging.debug(f"Downloaded {filename} from S3")
                 
         logging.info(f"Transcribing {filename}")
-        segments, info = model.transcribe(local_filename, beam_size=5)
+        segments, info = model.transcribe(local_filename, beam_size=5, language="en", vad_filter=True, vad_parameters=dict(min_silence_duration_ms=500))
 
         fulltext = ""
         for segment in segments:

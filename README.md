@@ -1,5 +1,7 @@
 # simple-tr-transcription
 
+[![latest release docker build](https://github.com/cschmittiey/simple-tr-transcription/actions/workflows/release-build-and-push.yml/badge.svg?event=release)](https://github.com/cschmittiey/simple-tr-transcription/actions/workflows/release-build-and-push.yml)
+
 This project aims to provide a simple(r) alternative to trunk-transcribe for people who want to transcribe just a couple talkgroups. 
 
 > [!IMPORTANT]

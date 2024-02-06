@@ -3,7 +3,11 @@ name: Build and push docker image when pushed to main
 on:
   push:
     branches: [ "main" ]
-
+    
+permissions:
+  contents: read
+  packages: write
+  
 jobs:
   docker:
     runs-on: ubuntu-latest

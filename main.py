@@ -55,8 +55,9 @@ def handle_message(filename):
 
         logging.info(f"Transcription of {filename}: {fulltext}")
 
-        #fire off discord notification
-        asyncio.run(send_talkgroup_webhook(talkgroup, filename, fulltext))
+        #fire off discord notification unless there's no transcription text
+        if fulltext:
+            asyncio.run(send_talkgroup_webhook(talkgroup, filename, fulltext))
 
         #fire off mqtt notification
         #i don't really love just tossing out the file name, talkgroup, and transcription. we should ingest call data with the upload script and use that maybe?

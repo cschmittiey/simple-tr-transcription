@@ -24,7 +24,7 @@ s3 = session.client(service_name='s3',
 
 # faster-whisper initialization
 # TODO: make this a config option
-model = WhisperModel(config.model_name, device=config.device_type)
+model = WhisperModel(config.model_name, device=config.device_type, download_root="./config")
 
 def on_connect(client, userdata, flags, rc):
     logging.info("MQTT Broker connected with result code " + str(rc))

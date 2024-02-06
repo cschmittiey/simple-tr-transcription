@@ -16,12 +16,20 @@ mqtt_config = {
 }
 
 tg_webhooks = {
-    123: 'https://discord.com/api/webhooks/obviously-not-a-real-webhook'
+    123: 'httpx://discord.com/api/webhooks/obviously-not-a-real-webhook',
+    456: 'httpx://discord.com/api/webhooks/obviously-not-a-real-webhook'
 }
 
 tg_displaynames = {
-    123: 'What you want the nickname of the sender in discord to be'
+    123: 'What you want the nickname of the sender in discord to be',
+    456: 'Police Tac 3'
 }
 
-talkgroups_allowlist = [123]
+# If both are empty, all calls transcribed
+# If denylist has entries, all but denylist transcribed
+# if allowlist has entries, only listed tgs will be transcribed
+talkgroups_allowlist = [123, 456]
 talkgroups_denylist = []
+
+model_name = "large-v3"  # Choose the appropriate model size and language
+device_type = "cpu" # need to check ctranslate2 for documentation but assume for now that "cuda" and "cpu" are your two options.

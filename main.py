@@ -24,8 +24,7 @@ s3 = session.client(service_name='s3',
 
 # faster-whisper initialization
 # TODO: make this a config option
-model_name = "large-v3"  # Choose the appropriate model size and language
-model = WhisperModel(model_name, device="cpu")
+model = WhisperModel(config.model_name, device=config.device_type)
 
 def on_connect(client, userdata, flags, rc):
     logging.info("MQTT Broker connected with result code " + str(rc))

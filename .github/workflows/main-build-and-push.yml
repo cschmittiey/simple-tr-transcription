@@ -27,4 +27,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: cschmittiey/simple-tr-transcription:main
+          tags: ghcr.io/cschmittiey/simple-tr-transcription:main

@@ -1,7 +1,17 @@
 import json
+import os
 import wave
 import logging
 from pathlib import Path
+from nemo.collections.asr.models import EncDecMultiTaskModel
+
+# canary 1b initialization
+# load model
+canary_model = EncDecMultiTaskModel.from_pretrained('nvidia/canary-1b')
+# update dcode params
+decode_cfg = canary_model.cfg.decoding
+decode_cfg.beam.beam_size = 1
+canary_model.change_decoding_strategy(decode_cfg)
 
 #logging!
 logger = logging.getLogger(__name__)
@@ -18,12 +28,13 @@ def get_duration(filename):
 
 def craft_input_manifest(filename, duration):
     manifest = {}
-    manifest['audio_filepath'] = filename
+    manifest['audio_filepath'] = os.getcwd() + "/" + filename
     manifest['duration'] = duration
     manifest['taskname'] = 'asr'
     manifest['source_lang'] = 'en' #shouldn't hardcode this
     manifest['target_lang'] = 'en'
     manifest['pnc'] = 'yes'
+    manifest['answer'] = "idk"
 
     manifest_file_name = Path(filename).stem + ".json"
 
@@ -32,18 +43,20 @@ def craft_input_manifest(filename, duration):
 
     return manifest_file_name
 
-def transcribe(filename, canary_model):
+def transcribe(filename):
 
     logger.debug(f"canary.transcribe.filename: {filename}")
     duration = get_duration(filename)
+    logger.debug(f"canary.transcribe.duration: {duration}")
 
     manifest = craft_input_manifest(filename, duration)
 
-    #canary-1b
-    fulltext = canary_model.transcribe(
-        manifest,
-        batch_size=16,  # batch size to run the inference with
-    )
+    fulltext = canary_model.transcribe(manifest)
+    fulltext = fulltext[0]
+
+    # clean up, clean up, everybody everywhere
+    os.remove(filename)
+    os.remove(manifest)
 
     return fulltext
 

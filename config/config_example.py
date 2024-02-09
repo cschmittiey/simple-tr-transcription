@@ -34,13 +34,15 @@ talkgroups_allowlist = [123, 456]
 talkgroups_denylist = []
 
 
+model = "whisper" #should be whisper, or canary
+
 """
 Size of the model to use (tiny, tiny.en, base, base.en,
 small, small.en, medium, medium.en, large-v1, large-v2, large-v3, or large),
 a path to a converted model directory, or a CTranslate2-converted Whisper model ID from the HF Hub. 
 When a size or a model ID is configured, the converted model is downloaded from the Hugging Face Hub.
 """
-model_name = "large-v3" 
-device_type = "cpu" # Device to use for computation ("cpu", "cuda", "auto").
-model_path = "./config" #this is not for loading models! this is where downloaded models get saved.
+whisper_model_name = "large-v3"  # Choose the appropriate model size and language
+whisper_device_type = "cpu" # need to check ctranslate2 for documentation but assume for now that "cuda" and "cpu" are your two options.
+whisper_model_path = "./config"
 

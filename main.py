@@ -1,4 +1,3 @@
-import os
 import json
 import boto3
 import aiohttp
@@ -7,15 +6,19 @@ import logging
 import threading
 import paho.mqtt.client as mqtt
 from discord import Webhook, Embed
-# from faster_whisper import WhisperModel
-from nemo.collections.asr.models import EncDecMultiTaskModel
-import models.canary as canary
 
 # hopefully this imports config/config.py and there's not some library out there named config... that would be awkward
 import config.config as config
 
+# from faster_whisper import WhisperModel
+if config.model == "whisper":
+    import models.whisper as whisper
+
+if config.model == "canary":
+    import models.canary as canary
+
 # log config
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 def on_connect(client, userdata, flags, rc):
     logging.info("MQTT Broker connected with result code " + str(rc))
@@ -39,21 +42,21 @@ def handle_message(filename):
                 
         logging.info(f"Transcribing {filename}")
 
-        # #FasterWhisper
-        # segments, info = model.transcribe(local_filename, beam_size=5, language="en", vad_filter=True, vad_parameters=dict(min_silence_duration_ms=500))
+        if config.model == "whisper":
+            #FasterWhisper
+            fulltext = whisper.transcribe(local_filename)
 
-        # fulltext = ""
-        # for segment in segments:
-        #     fulltext += segment.text
-
-        #canary-1b
-        fulltext = canary.transcribe(local_filename, canary_model)
-
-        logging.info(f"Transcription of {filename}: {fulltext}")
+        if config.model == "canary":
+            fulltext = canary.transcribe(local_filename)
 
         #fire off discord notification unless there's no transcription text
         if fulltext:
             asyncio.run(send_discord_webhook(talkgroup, filename, fulltext))
+            logging.info(f"Transcription of {filename}: {fulltext}")
+
+        if not fulltext:
+            logging.info(f"No text found.")
+
 
         #fire off mqtt notification
         #i don't really love just tossing out the file name, talkgroup, and transcription. we should ingest call data with the upload script and use that maybe?
@@ -61,8 +64,6 @@ def handle_message(filename):
         mqtt_transcribed_payload = json.dumps(x)
         mqtt_client.publish(config.mqtt_config['mqtt_transcribed_topic'], mqtt_transcribed_payload)
 
-        # Clean up downloaded file
-        os.remove(local_filename)
 
 
 def check_tg(talkgroup):
@@ -97,16 +98,7 @@ s3 = session.client(service_name='s3',
                     aws_secret_access_key=config.s3_config['s3_secret_key'],
                     endpoint_url='https://' + config.s3_config['s3_endpoint'])
 
-# # faster-whisper initialization
-# model = WhisperModel(config.model_name, device=config.device_type, download_root=config.model_path)
 
-# canary 1b initialization
-# load model
-canary_model = EncDecMultiTaskModel.from_pretrained('nvidia/canary-1b')
-# update dcode params
-decode_cfg = canary_model.cfg.decoding
-decode_cfg.beam.beam_size = 1
-canary_model.change_decoding_strategy(decode_cfg)
 
 # mqtt initialization
 mqtt_client = mqtt.Client()

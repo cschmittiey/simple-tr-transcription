@@ -44,5 +44,5 @@ When a size or a model ID is configured, the converted model is downloaded from 
 """
 whisper_model_name = "large-v3"  # Choose the appropriate model size and language
 whisper_device_type = "cpu" # need to check ctranslate2 for documentation but assume for now that "cuda" and "cpu" are your two options.
-whisper_model_path = "./config"
+whisper_model_path = "./config" # this is not for loading whisper models! this is where downloaded models get saved.
 

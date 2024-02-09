@@ -27,8 +27,14 @@ def get_duration(filename):
         return duration_in_seconds
 
 def craft_input_manifest(filename, duration):
+
+    if os.path.split(filename)[0] == '':
+        audio_filepath = os.getcwd() + "/" + filename
+    else:
+        audio_filepath = filename
+
     manifest = {}
-    manifest['audio_filepath'] = os.getcwd() + "/" + filename
+    manifest['audio_filepath'] = audio_filepath
     manifest['duration'] = duration
     manifest['taskname'] = 'asr'
     manifest['source_lang'] = 'en' #shouldn't hardcode this
@@ -43,7 +49,7 @@ def craft_input_manifest(filename, duration):
 
     return manifest_file_name
 
-def transcribe(filename):
+def transcribe(filename, cleanup=True):
 
     logger.debug(f"canary.transcribe.filename: {filename}")
     duration = get_duration(filename)
@@ -54,9 +60,10 @@ def transcribe(filename):
     fulltext = canary_model.transcribe(manifest)
     fulltext = fulltext[0]
 
-    # clean up, clean up, everybody everywhere
-    os.remove(filename)
-    os.remove(manifest)
+    if cleanup:
+        # clean up, clean up, everybody everywhere
+        os.remove(filename)
+        os.remove(manifest)
 
     return fulltext
 

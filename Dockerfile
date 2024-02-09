@@ -3,9 +3,7 @@ FROM python:3.10
 
 WORKDIR /app
 
-COPY ./main.py /app/
-COPY ./config/config_example.py /app/
-COPY ./requirements.txt /app/
+COPY . /app/
 
 RUN apt update && apt install libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev -y
 

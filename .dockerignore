@@ -1,0 +1,7 @@
+config.py
+__pycache__/
+*.pyc
+*.wav
+*.json
+config/*
+!config/config_example.py

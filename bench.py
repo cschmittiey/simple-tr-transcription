@@ -11,31 +11,33 @@ import pathlib
 logging.basicConfig(level=logging.INFO)
 
 parser = argparse.ArgumentParser(
-                    prog='bench.py',
-                    description='Use this program to test the different models and audio transformations against audio files.',
-                    epilog='cleeb.')
+    prog="bench.py",
+    description="Use this program to test the different models and audio transformations against audio files.",
+    epilog="cleeb.",
+)
 
-parser.add_argument('filename')
-parser.add_argument('-n', '--normalize', action='store_true')
+parser.add_argument("filename")
+parser.add_argument("-n", "--normalize", action="store_true")
 args = parser.parse_args()
 
+
 def compare(file):
-
     if args.normalize:
-
         # Define the input and output file paths
         input_file = file
         output_file = pathlib.Path(file).stem + ".normalized.wav"
 
         # Define the speechnorm filter string
-        speechnorm_filter = 'speechnorm=e=25:r=0.0001:l=1'
+        speechnorm_filter = "speechnorm=e=25:r=0.0001:l=1"
 
         # Construct the FFmpeg command
         ffmpeg_command = [
-            'ffmpeg',
-            '-i', input_file,
-            '-af', speechnorm_filter,
-            output_file
+            "ffmpeg",
+            "-i",
+            input_file,
+            "-af",
+            speechnorm_filter,
+            output_file,
         ]
 
         # Execute the FFmpeg command
@@ -61,4 +63,3 @@ if os.path.isdir(args.filename):
 else:
     logging.info(args.filename)
     compare(args.filename)
-

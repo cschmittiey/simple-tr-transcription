@@ -53,7 +53,7 @@ Docker compose example if you know what you're doing:
 services:
   transcription:
     #build: .
-    image: gchr.io/cschmittiey/simple-tr-transcription:latest
+    image: ghcr.io/cschmittiey/simple-tr-transcription:latest
     restart: unless-stopped
     volumes:
       - ./config:/app/config

@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.13
 # really wanted to use fedora, but oh well
 
 WORKDIR /app

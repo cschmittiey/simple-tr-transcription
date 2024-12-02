@@ -1,4 +1,4 @@
-aiohttp==3.11.8
+aiohttp==3.11.9
 boto3==1.35.71
 botocore==1.35.71
 discord.py==2.4.0

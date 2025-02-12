@@ -5,3 +5,4 @@ __pycache__/
 *.json
 config/*
 !config/config_example.py
+.aider*

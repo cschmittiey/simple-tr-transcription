@@ -1,4 +1,5 @@
 import json
+import asyncio
 import boto3
 import aiohttp
 import asyncio
@@ -52,17 +53,11 @@ def mqtt_handle_message(filename):
         # fire off discord notification unless there's no transcription text
         if fulltext:
             try:
-                # Get the current event loop or create a new one if necessary
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    # If the loop is already running, use run_coroutine_threadsafe
-                    asyncio.run_coroutine_threadsafe(
-                        send_discord_webhook(talkgroup, filename, fulltext),
-                        loop
-                    ).result()
-                else:
-                    # If no loop is running, use asyncio.run
-                    asyncio.run(send_discord_webhook(talkgroup, filename, fulltext))
+                # Use run_coroutine_threadsafe with the global event loop
+                asyncio.run_coroutine_threadsafe(
+                    send_discord_webhook(talkgroup, filename, fulltext),
+                    global_event_loop
+                ).result()
                 logging.info(f"Transcription of {filename}: {fulltext}")
             except Exception as e:
                 logging.error(f"Failed to send Discord webhook: {e}")
@@ -118,7 +113,9 @@ s3 = session.client(
 )
 
 
-# mqtt initialization
+# Global event loop initialization
+global_event_loop = asyncio.new_event_loop()
+asyncio.set_event_loop(global_event_loop)
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = mqtt_on_connect
 mqtt_client.on_message = mqtt_on_message

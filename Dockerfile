@@ -12,7 +12,7 @@ RUN apt update && \
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN uv pip install -r requirements.txt --break-system-packages
+RUN uv pip install -r requirements.txt --break-system-packages --system
 
 # Copy the rest of the application code
 COPY . .

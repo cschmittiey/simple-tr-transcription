@@ -52,11 +52,11 @@ def mqtt_handle_message(filename):
         # fire off discord notification unless there's no transcription text
         if fulltext:
             try:
-                # Set up a new event loop for this thread
-                new_loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(new_loop)
-                new_loop.run_until_complete(send_discord_webhook(talkgroup, filename, fulltext))
-                new_loop.close()
+                # Schedule the coroutine in the existing event loop
+                asyncio.run_coroutine_threadsafe(
+                    send_discord_webhook(talkgroup, filename, fulltext),
+                    asyncio.get_event_loop()
+                ).result()
                 logging.info(f"Transcription of {filename}: {fulltext}")
             except Exception as e:
                 logging.error(f"Failed to send Discord webhook: {e}")

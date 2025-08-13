@@ -1,5 +1,5 @@
 aiohttp==3.12.15
-boto3==1.40.8
+boto3==1.40.9
 botocore==1.40.8
 discord.py==2.5.2
 faster_whisper==1.2.0

@@ -1,6 +1,6 @@
 aiohttp==3.14.5
-boto3==1.44.12
-botocore==1.44.12
+boto3==1.44.13
+botocore==1.44.13
 discord.py==2.7.1
 faster_whisper==1.2.1
 paho_mqtt==2.2.0
